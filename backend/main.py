@@ -1,52 +1,51 @@
-from fastapi import FastAPI,Depends,HTTPException
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func,or_
-from datetime import datetime,timedelta
+from sqlalchemy import func, or_
+from datetime import datetime, timedelta
 import jwt
 
 import models
 from database import SessionLocal
 
-SECRET_KEY="SUPER_SECRET_KEY"
+SECRET_KEY = "SUPER_SECRET_KEY"
 
-app=FastAPI()
+app = FastAPI()
+
 
 # ------------------------------
 # 数据库依赖
 # ------------------------------
 
 def get_db():
-
-    db=SessionLocal()
+    db = SessionLocal()
 
     try:
         yield db
     finally:
         db.close()
 
+
 # ------------------------------
 # JWT
 # ------------------------------
 
-def create_token(uid:int):
-
-    payload={
-        "uid":uid,
-        "exp":datetime.utcnow()+timedelta(days=365)
+def create_token(uid: int):
+    payload = {
+        "uid": uid,
+        "exp": datetime.utcnow() + timedelta(days=365)
     }
 
-    token=jwt.encode(payload,SECRET_KEY,algorithm="HS256")
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
 
     return token
 
 
-def decode_token(token:str):
-
+def decode_token(token: str):
     try:
-        payload=jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return payload["uid"]
     except:
-        raise HTTPException(401,"token invalid")
+        raise HTTPException(401, "token invalid")
 
 
 # ------------------------------
@@ -54,20 +53,18 @@ def decode_token(token:str):
 # ------------------------------
 
 @app.post("/register")
-
 def register(
-    username:str,
-    password:str,
-    email:str,
-    db:Session=Depends(get_db)
+        username: str,
+        password: str,
+        email: str,
+        db: Session = Depends(get_db)
 ):
-
-    exist=db.query(models.User).filter_by(username=username).first()
+    exist = db.query(models.User).filter_by(username=username).first()
 
     if exist:
-        raise HTTPException(400,"username exists")
+        raise HTTPException(400, "username exists")
 
-    user=models.User(
+    user = models.User(
         username=username,
         password=password,
         email=email,
@@ -79,7 +76,7 @@ def register(
     db.add(user)
     db.commit()
 
-    return {"msg":"register success"}
+    return {"msg": "register success"}
 
 
 # ------------------------------
@@ -87,23 +84,21 @@ def register(
 # ------------------------------
 
 @app.post("/login")
-
-def login(username:str,password:str,db:Session=Depends(get_db)):
-
-    user=db.query(models.User).filter_by(
+def login(username: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(
         username=username,
         password=password
     ).first()
 
     if not user:
-        raise HTTPException(401,"login failed")
+        raise HTTPException(401, "login failed")
 
-    token=create_token(user.uid)
+    token = create_token(user.uid)
 
     return {
-        "token":token,
-        "uid":user.uid,
-        "username":user.username
+        "token": token,
+        "uid": user.uid,
+        "username": user.username
     }
 
 
@@ -112,21 +107,19 @@ def login(username:str,password:str,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.post("/upload")
-
 def upload(
-    title:str,
-    description:str,
-    image_base64:str,
-    uid:int,
-    db:Session=Depends(get_db)
+        title: str,
+        description: str,
+        image_base64: str,
+        uid: int,
+        db: Session = Depends(get_db)
 ):
-
-    user=db.query(models.User).filter_by(uid=uid).first()
+    user = db.query(models.User).filter_by(uid=uid).first()
 
     if user.is_banned:
-        raise HTTPException(403,"user banned")
+        raise HTTPException(403, "user banned")
 
-    meme=models.Meme(
+    meme = models.Meme(
         title=title,
         description=description,
         image_base64=image_base64,
@@ -138,7 +131,7 @@ def upload(
     db.add(meme)
     db.commit()
 
-    return {"msg":"upload success"}
+    return {"msg": "upload success"}
 
 
 # ------------------------------
@@ -146,24 +139,22 @@ def upload(
 # ------------------------------
 
 @app.get("/memes")
+def get_memes(page: int = 1, db: Session = Depends(get_db)):
+    size = 50
 
-def get_memes(page:int=1,db:Session=Depends(get_db)):
-
-    size=50
-
-    memes=db.query(
+    memes = db.query(
         models.Meme,
         func.avg(models.Rating.rating).label("avg_rating")
     ).outerjoin(
         models.Rating,
-        models.Meme.pid==models.Rating.pid
+        models.Meme.pid == models.Rating.pid
     ).filter(
-        models.Meme.status=="approved"
+        models.Meme.status == "approved"
     ).group_by(
         models.Meme.pid
     ).order_by(
         models.Meme.pid.desc()
-    ).offset((page-1)*size).limit(size).all()
+    ).offset((page - 1) * size).limit(size).all()
 
     return memes
 
@@ -173,20 +164,18 @@ def get_memes(page:int=1,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.get("/search")
+def search(q: str, page: int = 1, db: Session = Depends(get_db)):
+    size = 50
 
-def search(q:str,page:int=1,db:Session=Depends(get_db)):
-
-    size=50
-
-    memes=db.query(models.Meme).filter(
-        models.Meme.status=="approved",
+    memes = db.query(models.Meme).filter(
+        models.Meme.status == "approved",
         or_(
             models.Meme.title.like(f"%{q}%"),
             models.Meme.description.like(f"%{q}%")
         )
     ).order_by(
         models.Meme.pid.desc()
-    ).offset((page-1)*size).limit(size).all()
+    ).offset((page - 1) * size).limit(size).all()
 
     return memes
 
@@ -196,19 +185,17 @@ def search(q:str,page:int=1,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.post("/rate")
-
-def rate(uid:int,pid:int,rating:float,db:Session=Depends(get_db)):
-
-    old=db.query(models.Rating).filter_by(uid=uid,pid=pid).first()
+def rate(uid: int, pid: int, rating: float, db: Session = Depends(get_db)):
+    old = db.query(models.Rating).filter_by(uid=uid, pid=pid).first()
 
     if old:
-        old.rating=rating
+        old.rating = rating
     else:
-        db.add(models.Rating(uid=uid,pid=pid,rating=rating))
+        db.add(models.Rating(uid=uid, pid=pid, rating=rating))
 
     db.commit()
 
-    return {"msg":"rated"}
+    return {"msg": "rated"}
 
 
 # ------------------------------
@@ -216,15 +203,13 @@ def rate(uid:int,pid:int,rating:float,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.post("/comment")
-
-def comment(uid:int,pid:int,content:str,db:Session=Depends(get_db)):
-
-    user=db.query(models.User).filter_by(uid=uid).first()
+def comment(uid: int, pid: int, content: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(uid=uid).first()
 
     if user.is_banned:
-        raise HTTPException(403,"banned")
+        raise HTTPException(403, "banned")
 
-    c=models.Comment(
+    c = models.Comment(
         uid=uid,
         pid=pid,
         content=content,
@@ -234,7 +219,7 @@ def comment(uid:int,pid:int,content:str,db:Session=Depends(get_db)):
     db.add(c)
     db.commit()
 
-    return {"msg":"comment success"}
+    return {"msg": "comment success"}
 
 
 # ------------------------------
@@ -242,10 +227,8 @@ def comment(uid:int,pid:int,content:str,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.get("/comments")
-
-def get_comments(pid:int,db:Session=Depends(get_db)):
-
-    comments=db.query(models.Comment).filter_by(pid=pid).all()
+def get_comments(pid: int, db: Session = Depends(get_db)):
+    comments = db.query(models.Comment).filter_by(pid=pid).all()
 
     return comments
 
@@ -255,22 +238,20 @@ def get_comments(pid:int,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.post("/favorite")
-
-def favorite(uid:int,pid:int,db:Session=Depends(get_db)):
-
-    fav=db.query(models.Favorite).filter_by(uid=uid,pid=pid).first()
+def favorite(uid: int, pid: int, db: Session = Depends(get_db)):
+    fav = db.query(models.Favorite).filter_by(uid=uid, pid=pid).first()
 
     if fav:
         db.delete(fav)
         db.commit()
-        return {"msg":"unfavorite"}
+        return {"msg": "unfavorite"}
 
     else:
-        f=models.Favorite(uid=uid,pid=pid)
+        f = models.Favorite(uid=uid, pid=pid)
         db.add(f)
         db.commit()
 
-        return {"msg":"favorite"}
+        return {"msg": "favorite"}
 
 
 # ------------------------------
@@ -278,20 +259,18 @@ def favorite(uid:int,pid:int,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.get("/user")
+def user_info(uid: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(uid=uid).first()
 
-def user_info(uid:int,db:Session=Depends(get_db)):
-
-    user=db.query(models.User).filter_by(uid=uid).first()
-
-    memes=db.query(models.Meme).filter_by(
+    memes = db.query(models.Meme).filter_by(
         uploader_uid=uid
     ).all()
 
     return {
-        "uid":user.uid,
-        "username":user.username,
-        "is_banned":user.is_banned,
-        "memes":memes
+        "uid": user.uid,
+        "username": user.username,
+        "is_banned": user.is_banned,
+        "memes": memes
     }
 
 
@@ -300,38 +279,32 @@ def user_info(uid:int,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.get("/admin/pending")
-
-def pending_memes(db:Session=Depends(get_db)):
-
-    memes=db.query(models.Meme).filter_by(status="pending").all()
+def pending_memes(db: Session = Depends(get_db)):
+    memes = db.query(models.Meme).filter_by(status="pending").all()
 
     return memes
 
 
 @app.post("/admin/approve")
+def approve(pid: int, db: Session = Depends(get_db)):
+    meme = db.query(models.Meme).filter_by(pid=pid).first()
 
-def approve(pid:int,db:Session=Depends(get_db)):
-
-    meme=db.query(models.Meme).filter_by(pid=pid).first()
-
-    meme.status="approved"
+    meme.status = "approved"
 
     db.commit()
 
-    return {"msg":"approved"}
+    return {"msg": "approved"}
 
 
 @app.post("/admin/reject")
+def reject(pid: int, db: Session = Depends(get_db)):
+    meme = db.query(models.Meme).filter_by(pid=pid).first()
 
-def reject(pid:int,db:Session=Depends(get_db)):
-
-    meme=db.query(models.Meme).filter_by(pid=pid).first()
-
-    meme.status="rejected"
+    meme.status = "rejected"
 
     db.commit()
 
-    return {"msg":"rejected"}
+    return {"msg": "rejected"}
 
 
 # ------------------------------
@@ -339,26 +312,22 @@ def reject(pid:int,db:Session=Depends(get_db)):
 # ------------------------------
 
 @app.post("/admin/ban")
+def ban_user(uid: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(uid=uid).first()
 
-def ban_user(uid:int,db:Session=Depends(get_db)):
-
-    user=db.query(models.User).filter_by(uid=uid).first()
-
-    user.is_banned=True
+    user.is_banned = True
 
     db.commit()
 
-    return {"msg":"user banned"}
+    return {"msg": "user banned"}
 
 
 @app.post("/admin/unban")
+def unban(uid: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter_by(uid=uid).first()
 
-def unban(uid:int,db:Session=Depends(get_db)):
-
-    user=db.query(models.User).filter_by(uid=uid).first()
-
-    user.is_banned=False
+    user.is_banned = False
 
     db.commit()
 
-    return {"msg":"user unbanned"}
+    return {"msg": "user unbanned"}
