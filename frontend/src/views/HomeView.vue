@@ -14,9 +14,14 @@ const detailVisible = ref(false)
 const detailPid = ref<number | null>(null)
 
 async function fetchMemes() {
-  const { data } = await api.get('/memes', { params: { page: page.value, q: route.query.q || '' } })
-  list.value = data.items
-  total.value = data.total
+  try {
+    const { data } = await api.get('/memes', { params: { page: page.value, q: route.query.q || '' } })
+    list.value = data.items
+    total.value = data.total
+  } catch {
+    list.value = []
+    total.value = 0
+  }
 }
 
 function openDetail(pid: number) {
@@ -36,7 +41,8 @@ onMounted(fetchMemes)
 </script>
 
 <template>
-  <el-row :gutter="12">
+  <el-empty v-if="list.length === 0" description="暂无梗图数据" />
+  <el-row v-else :gutter="12">
     <el-col v-for="item in list" :key="item.pid" :xs="24" :sm="12" :md="8" :lg="6">
       <MemeCard :meme="item" @detail="openDetail(item.pid)" @refresh="fetchMemes" />
     </el-col>
@@ -47,6 +53,7 @@ onMounted(fetchMemes)
     :page-size="50"
     layout="prev, pager, next, total"
     :total="total"
+    :hide-on-single-page="true"
     @current-change="fetchMemes"
   />
 

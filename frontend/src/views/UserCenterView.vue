@@ -19,38 +19,57 @@ function avatarUrl(seed: string) {
 }
 
 async function loadMe() {
-  const { data } = await api.get('/me')
-  Object.assign(me, data)
-  myMemes.value = data.my_memes
-  if (authState.userStatus === 'admin') {
-    const [pendingRes, usersRes] = await Promise.all([api.get('/admin/pending'), api.get('/admin/users')])
-    pendingMemes.value = pendingRes.data.items
-    users.value = usersRes.data.items
+  try {
+    const { data } = await api.get('/me')
+    Object.assign(me, data)
+    myMemes.value = data.my_memes
+    if (authState.userStatus === 'admin') {
+      const [pendingRes, usersRes] = await Promise.all([api.get('/admin/pending'), api.get('/admin/users')])
+      pendingMemes.value = pendingRes.data.items
+      users.value = usersRes.data.items
+    }
+  } catch {
+    router.push('/login')
   }
 }
 
 async function logout() {
-  await api.post('/logout')
-  clearAuth()
-  router.push('/login')
+  try {
+    await api.post('/logout')
+  } finally {
+    clearAuth()
+    router.push('/login')
+  }
 }
 
 async function setBan(uid: number, banned: boolean) {
-  await api.post('/admin/ban', { uid, banned })
-  ElMessage.success('用户状态已更新')
-  await loadMe()
+  try {
+    await api.post('/admin/ban', { uid, banned })
+    ElMessage.success('用户状态已更新')
+    await loadMe()
+  } catch {
+    // handled by axios interceptor
+  }
 }
 
 async function review(pid: number, status: 'approved' | 'rejected') {
-  await api.post(`/admin/meme/${pid}/review`, { status })
-  ElMessage.success('审核完成')
-  await loadMe()
+  try {
+    await api.post(`/admin/meme/${pid}/review`, { status })
+    ElMessage.success('审核完成')
+    await loadMe()
+  } catch {
+    // handled by axios interceptor
+  }
 }
 
 async function banUploader(uid: number) {
-  await api.post('/admin/ban-uploader', { uid })
-  ElMessage.success('发布者已封禁')
-  await loadMe()
+  try {
+    await api.post('/admin/ban-uploader', { uid })
+    ElMessage.success('发布者已封禁')
+    await loadMe()
+  } catch {
+    // handled by axios interceptor
+  }
 }
 
 onMounted(loadMe)

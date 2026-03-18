@@ -133,6 +133,28 @@ def get_current_user(
     return user
 
 
+def get_optional_user(
+    db: Session = Depends(get_db),
+    token_cookie: Optional[str] = Cookie(default=None, alias="token"),
+    authorization: Optional[str] = Header(default=None),
+):
+    token = token_cookie
+    if not token and authorization:
+        scheme, _, credentials = authorization.partition(" ")
+        if scheme.lower() == "bearer" and credentials:
+            token = credentials
+
+    if not token:
+        return None
+
+    try:
+        uid = decode_token(token)
+    except HTTPException:
+        return None
+
+    return db.query(models.User).filter_by(uid=uid).first()
+
+
 def get_admin_user(user: models.User = Depends(get_current_user)):
     if user.user_status != "admin":
         raise HTTPException(status_code=403, detail="admin only")
@@ -243,7 +265,7 @@ def upload(body: UploadBody, user: models.User = Depends(get_current_user), db: 
 
 
 @app.get("/memes")
-def get_memes(page: int = 1, q: str = "", user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_memes(page: int = 1, q: str = "", user: Optional[models.User] = Depends(get_optional_user), db: Session = Depends(get_db)):
     query = db.query(models.Meme).filter(models.Meme.status == "approved")
     if q:
         query = query.filter(or_(models.Meme.title.like(f"%{q}%"), models.Meme.description.like(f"%{q}%")))
@@ -252,7 +274,7 @@ def get_memes(page: int = 1, q: str = "", user: models.User = Depends(get_curren
     memes = query.order_by(models.Meme.pid.desc()).offset((page - 1) * PAGE_SIZE).limit(PAGE_SIZE).all()
 
     return {
-        "items": [meme_to_dict(item, user.uid, db) for item in memes],
+        "items": [meme_to_dict(item, user.uid if user else None, db) for item in memes],
         "page": page,
         "page_size": PAGE_SIZE,
         "total": total,
@@ -260,7 +282,7 @@ def get_memes(page: int = 1, q: str = "", user: models.User = Depends(get_curren
 
 
 @app.get("/meme/{pid}")
-def get_meme_detail(pid: int, user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+def get_meme_detail(pid: int, user: Optional[models.User] = Depends(get_optional_user), db: Session = Depends(get_db)):
     meme = db.query(models.Meme).filter_by(pid=pid, status="approved").first()
     if not meme:
         raise HTTPException(404, "meme not found")
@@ -272,7 +294,7 @@ def get_meme_detail(pid: int, user: models.User = Depends(get_current_user), db:
         .all()
     )
     return {
-        **meme_to_dict(meme, user.uid, db),
+        **meme_to_dict(meme, user.uid if user else None, db),
         "comments": [
             {
                 "id": c.id,

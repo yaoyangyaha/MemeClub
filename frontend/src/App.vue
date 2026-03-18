@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
+import { authState } from '@/state/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -20,6 +21,14 @@ function onSearch() {
 function goTab(index: string) {
   router.push(index)
 }
+
+watch(
+  () => route.query.q,
+  (value) => {
+    search.value = String(value || '')
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -36,6 +45,7 @@ function goTab(index: string) {
         <el-menu-item index="/">主页</el-menu-item>
         <el-menu-item index="/user">用户中心</el-menu-item>
         <el-menu-item index="/upload">上传梗图</el-menu-item>
+        <el-menu-item v-if="!authState.uid" index="/login">登录</el-menu-item>
       </el-menu>
     </el-header>
     <el-main>

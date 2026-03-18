@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { api, GRAVATAR_BASE_URL } from '@/api'
+import { authState } from '@/state/auth'
 import type { MemeDetail } from '@/types'
 import { md5 } from '@/utils'
 
@@ -33,19 +34,35 @@ function avatarUrl(seed: string) {
 }
 
 async function submitRate() {
+  if (!authState.uid) {
+    ElMessage.warning('请先登录后评分')
+    return
+  }
   if (!props.pid || !currentRate.value) return
-  await api.post('/rate', { pid: props.pid, rating: currentRate.value })
-  ElMessage.success('评分成功')
-  emit('updated')
+  try {
+    await api.post('/rate', { pid: props.pid, rating: currentRate.value })
+    ElMessage.success('评分成功')
+    emit('updated')
+  } catch {
+    // handled by axios interceptor
+  }
 }
 
 async function submitComment() {
+  if (!authState.uid) {
+    ElMessage.warning('请先登录后评论')
+    return
+  }
   if (!props.pid || !commentText.value.trim()) return
-  await api.post('/comment', { pid: props.pid, content: commentText.value.trim() })
-  commentText.value = ''
-  const { data } = await api.get(`/meme/${props.pid}`)
-  detail.value = data
-  emit('updated')
+  try {
+    await api.post('/comment', { pid: props.pid, content: commentText.value.trim() })
+    commentText.value = ''
+    const { data } = await api.get(`/meme/${props.pid}`)
+    detail.value = data
+    emit('updated')
+  } catch {
+    // handled by axios interceptor
+  }
 }
 </script>
 
@@ -60,13 +77,13 @@ async function submitComment() {
       <p>综合评分：{{ detail.avg_rating }}</p>
       <el-divider />
       <el-space>
-        <el-rate v-model="currentRate" allow-half />
-        <el-button type="primary" @click="submitRate">提交评分</el-button>
+        <el-rate v-model="currentRate" allow-half :disabled="!authState.uid" />
+        <el-button type="primary" :disabled="!authState.uid" @click="submitRate">提交评分</el-button>
       </el-space>
       <el-divider />
       <h3>评论区 ({{ detail.comment_count }})</h3>
-      <el-input v-model="commentText" type="textarea" :maxlength="100" show-word-limit />
-      <el-button class="mt8" type="primary" @click="submitComment">提交评论</el-button>
+      <el-input v-model="commentText" type="textarea" :maxlength="100" show-word-limit :disabled="!authState.uid" />
+      <el-button class="mt8" type="primary" :disabled="!authState.uid" @click="submitComment">提交评论</el-button>
       <el-divider />
       <el-space direction="vertical" fill style="width: 100%">
         <div v-for="comment in detail.comments" :key="comment.id" class="comment-item">
