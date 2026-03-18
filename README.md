@@ -1,0 +1,57 @@
+# MemeClub
+
+一个使用 Vue 3 + TypeScript + Element Plus + Vue Router 构建前端，FastAPI + MySQL 构建后端的梗图社区示例项目。
+
+## 目录结构
+
+```text
+MemeClub/
+├── backend
+├── frontend
+└── docs
+```
+
+## 后端启动
+
+1. 复制环境变量模板
+
+```bash
+cd backend
+cp .env.example .env
+```
+
+2. 初始化数据库
+
+```bash
+mysql -u root -p < init_db.sql
+```
+
+3. 安装依赖并启动
+
+```bash
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+## 前端启动
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## VitePress 文档
+
+```bash
+cd docs
+npm install
+npm run docs:dev
+```
+
+## 说明
+
+- 数据库存储了用户、梗图、评论、收藏、评分信息。
+- 文本与图片字段按需求以 Base64 字符串形式存储。
+- 用户身份由 `users.user_status` 控制，`admin` 为管理员，`user` 为普通用户。
+- 如果需要更换头像镜像站，修改 [frontend/src/config.ts](/Users/yaoyangyaha/Documents/code/MemeClub/frontend/src/config.ts) 里的 `GRAVATAR_BASE_URL` 即可。

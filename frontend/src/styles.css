@@ -1,0 +1,253 @@
+:root {
+  color-scheme: light;
+  font-family: "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 153, 0.55), transparent 28%),
+    radial-gradient(circle at top right, rgba(124, 198, 255, 0.32), transparent 26%),
+    linear-gradient(180deg, #fffdf8 0%, #f7f9ff 100%);
+  color: #233243;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: #2256c6;
+  text-decoration: none;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 180px minmax(240px, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 24px;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid rgba(35, 50, 67, 0.08);
+}
+
+.brand {
+  font-size: 28px;
+  font-weight: 800;
+  color: #f06a3a;
+}
+
+.search-box {
+  width: 100%;
+}
+
+.nav-menu.el-menu {
+  border-bottom: none;
+  background: transparent;
+}
+
+.page-shell {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 28px 20px 48px;
+}
+
+.page-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.meme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.meme-card {
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.meme-thumb-wrap {
+  aspect-ratio: 4 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #edf2fb;
+}
+
+.meme-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.meme-meta h3 {
+  margin: 14px 0 10px;
+  font-size: 18px;
+}
+
+.meta-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  color: #526579;
+  font-size: 14px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pagination-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.auth-wrap,
+.form-page {
+  display: flex;
+  justify-content: center;
+  padding-top: 48px;
+}
+
+.auth-card,
+.form-card {
+  width: min(100%, 520px);
+  border-radius: 24px;
+}
+
+.full-btn {
+  width: 100%;
+}
+
+.auth-switch {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.drawer-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.detail-image {
+  width: 100%;
+  max-height: 420px;
+  border-radius: 18px;
+  background: #f5f7fa;
+}
+
+.detail-copy {
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.detail-line {
+  color: #4b5b6b;
+}
+
+.rating-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.comment-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-header {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.comment-submit {
+  width: fit-content;
+}
+
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comment-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f8fbff;
+}
+
+.comment-user {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.comment-text {
+  white-space: pre-wrap;
+  color: #44596d;
+}
+
+.profile-card,
+.admin-tools {
+  border-radius: 24px;
+}
+
+.profile-head {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.logout-btn {
+  margin-top: 16px;
+}
+
+.admin-ban-row,
+.review-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
