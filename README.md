@@ -1,6 +1,6 @@
 # MemeClub
 
-一个使用 Vue 3 + TypeScript + Element Plus + Vue Router 构建前端，FastAPI + MySQL 构建后端的梗图社区示例项目。
+一个使用 Vue 3 + TypeScript + Element Plus + Vue Router 构建前端，FastAPI + 纯MySQL 构建后端的梗图社区网站。
 
 ## 目录结构
 
@@ -51,3 +51,15 @@ npm run docs:dev
 - 用户身份由 `users.user_status` 控制，`admin` 为管理员，`user` 为普通用户。
 - 如果需要更换头像镜像站，修改 [frontend/src/config.ts](frontend/src/config.ts) 里的 `GRAVATAR_BASE_URL` 即可。
 - 如果前端不是从 `http://localhost:5173` 或 `http://127.0.0.1:5173` 启动，记得同步修改后端 `.env` 里的 `FRONTEND_ORIGINS`。
+- 本项目遵循`MIT License`
+
+感谢各位的支持！欢迎大家fork项目、提交Issue和PR！
+
+### 贡献者：
+<a href="https://github.com/yaoyangyaha/MemeClub/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=yaoyangyaha/MemeClub"  alt="Contributors"/>
+</a>
+
+
+### Buy Me A Coffee~
+[ClickMe](https://afdian.com/a/YAOYANGYAHA666)
