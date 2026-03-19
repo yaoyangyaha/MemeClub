@@ -2,6 +2,8 @@
 
 一个使用 Vue 3 + TypeScript + Element Plus + Vue Router 构建前端，FastAPI + 纯MySQL 构建后端的梗图社区网站。
 
+项目示例：[https://meme.xtiantech.cn](https://meme.xtiantech.cn)
+
 ## 目录结构
 
 ```text
