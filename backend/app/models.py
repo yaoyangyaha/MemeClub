@@ -1,15 +1,8 @@
 from datetime import datetime
 
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    ForeignKey,
-    Numeric,
-    String,
-    Text,
-    UniqueConstraint,
-)
 from sqlalchemy.dialects.mysql import LONGTEXT
+from sqlalchemy.dialects.mysql import VARCHAR
+from sqlalchemy import Boolean, DateTime, ForeignKey, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -19,8 +12,16 @@ class User(Base):
     __tablename__ = "users"
 
     uid: Mapped[int] = mapped_column(primary_key=True, index=True)
-    username_b64: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    email_b64: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
+    username_b64: Mapped[str] = mapped_column(
+        VARCHAR(255, charset="ascii", collation="ascii_bin"),
+        unique=True,
+        nullable=False,
+    )
+    email_b64: Mapped[str] = mapped_column(
+        VARCHAR(255, charset="ascii", collation="ascii_bin"),
+        unique=True,
+        nullable=False,
+    )
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     user_status: Mapped[str] = mapped_column(String(20), default="user", nullable=False)
     is_banned: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
