@@ -44,12 +44,12 @@ import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-import api from '@/api/client'
+import api from '../api/client'
 import MemeCard from '@/components/MemeCard.vue'
 import MemeDetailDrawer from '@/components/MemeDetailDrawer.vue'
-import { useAuthStore } from '@/stores/auth'
-import type { MemeDetail, UserProfile } from '@/types'
-import { getGravatarUrl } from '@/utils/gravatar'
+import { useAuthStore } from '../stores/auth'
+import type { MemeDetail, UserProfile } from '../types'
+import { getGravatarUrl } from '../utils/gravatar'
 
 const router = useRouter()
 const auth = useAuthStore()

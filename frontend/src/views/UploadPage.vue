@@ -29,8 +29,8 @@
 import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 
-import api from '@/api/client'
-import { useAuthStore } from '@/stores/auth'
+import api from '../api/client'
+import { useAuthStore } from '../stores/auth'
 
 const auth = useAuthStore()
 const form = reactive({

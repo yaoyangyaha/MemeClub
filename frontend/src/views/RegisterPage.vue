@@ -26,9 +26,9 @@ import { reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
-import api from '@/api/client'
-import { useAuthStore } from '@/stores/auth'
-import type { AuthResponse } from '@/types'
+import api from '../api/client'
+import { useAuthStore } from '../stores/auth'
+import type { AuthResponse } from '../types'
 
 const router = useRouter()
 const auth = useAuthStore()

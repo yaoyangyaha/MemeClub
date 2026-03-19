@@ -31,11 +31,11 @@
 import { onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 
-import api from '@/api/client'
+import api from '../api/client'
 import MemeCard from '@/components/MemeCard.vue'
 import MemeDetailDrawer from '@/components/MemeDetailDrawer.vue'
-import type { MemeDetail, MemeListResponse } from '@/types'
-import { useAuthStore } from '@/stores/auth'
+import type { MemeDetail, MemeListResponse } from '../types'
+import { useAuthStore } from '../stores/auth'
 
 const props = defineProps<{
   searchKeyword?: string

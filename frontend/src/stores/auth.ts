@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
-import api from '@/api/client'
-import type { AuthResponse, UserSummary } from '@/types'
+import api from '../api/client'
+import type { AuthResponse, UserSummary } from '../types'
 
 interface AuthState {
   token: string

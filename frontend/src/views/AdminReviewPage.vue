@@ -23,8 +23,8 @@
 import { onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 
-import api from '@/api/client'
-import type { MemeCardItem } from '@/types'
+import api from '../api/client'
+import type { MemeCardItem } from '../types'
 
 const items = ref<MemeCardItem[]>([])
 

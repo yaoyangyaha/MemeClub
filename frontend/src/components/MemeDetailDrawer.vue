@@ -59,9 +59,9 @@
 import { ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 
-import api from '@/api/client'
-import type { MemeDetail } from '@/types'
-import { getGravatarUrl } from '@/utils/gravatar'
+import api from '../api/client'
+import type { MemeDetail } from '../types'
+import { getGravatarUrl } from '../utils/gravatar'
 
 const props = defineProps<{
   modelValue: boolean

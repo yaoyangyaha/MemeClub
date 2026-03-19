@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { MemeCardItem } from '@/types'
+import type { MemeCardItem } from '../types'
 
 const props = defineProps<{
   item: MemeCardItem
