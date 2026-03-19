@@ -7,7 +7,9 @@ from passlib.context import CryptContext
 from app.config import settings
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# 默认使用 pbkdf2_sha256，避免部分 bcrypt 运行环境出现 72 bytes 误判。
+# 仍保留 bcrypt 兼容，方便继续校验旧密码哈希。
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.codec import decode_text, encode_text
 from app.database import get_db
 from app.deps import ensure_not_banned, get_current_user, get_optional_user
-from app.models import Favorite, Meme, Rating, User
+from app.models import Comment, Favorite, Meme, Rating, User
 from app.schemas import (
     CommentCreateRequest,
     FavoriteResponse,
